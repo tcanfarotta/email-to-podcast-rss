@@ -1,0 +1,22 @@
+{
+  "name": "email-to-podcast-rss",
+  "version": "1.0.0",
+  "description": "Convert incoming emails to podcasts and serve via RSS feed",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["podcast", "email", "rss", "postmark", "webhook"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "rss": "^1.2.2",
+    "uuid": "^9.0.1",
+    "multer": "^1.4.5-lts.1",
+    "axios": "^1.6.2"
+  }
+}
