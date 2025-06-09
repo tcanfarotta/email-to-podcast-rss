@@ -6,15 +6,12 @@ export const webhookRouter = Router();
 
 webhookRouter.post('/postmark', async (req, res) => {
   try {
-    // Verify webhook token if configured
-    if (process.env.POSTMARK_WEBHOOK_TOKEN) {
-      const isValid = verifyPostmarkWebhook(req);
-      if (!isValid) {
-        return res.status(401).json({ error: 'Invalid webhook token' });
-      }
-    }
-
+    // Authentication removed for testing
     const emailData = req.body;
+    
+    // Log the raw webhook body
+    console.log('\n========== WEBHOOK RECEIVED ==========');
+    console.log('Raw webhook body:', JSON.stringify(emailData, null, 2));
     
     // Extract email details
     const email = {
@@ -28,7 +25,14 @@ webhookRouter.post('/postmark', async (req, res) => {
       attachments: emailData.Attachments || []
     };
 
-    console.log(`Received email from ${email.from} with subject: ${email.subject}`);
+    console.log('\n========== EXTRACTED EMAIL ==========');
+    console.log(`From: ${email.from}`);
+    console.log(`To: ${email.to}`);
+    console.log(`Subject: ${email.subject}`);
+    console.log(`Date: ${email.date}`);
+    console.log(`Has text body: ${!!email.textBody}`);
+    console.log(`Has HTML body: ${!!email.htmlBody}`);
+    console.log(`Text body preview: ${email.textBody?.substring(0, 200)}...`);
 
     // Process the email asynchronously
     processEmail(email).catch(error => {

@@ -17,7 +17,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static files (podcasts)
+// Serve static files
+app.use(express.static(join(dirname(__dirname), 'public')));
 app.use('/podcasts', express.static(join(dirname(__dirname), 'storage', 'podcasts')));
 
 // Routes

@@ -13,9 +13,9 @@ Convert incoming emails to podcasts automatically using Podcastfy and serve them
 ## Prerequisites
 
 - Node.js (v14 or higher)
-- Python 3.8 or higher
 - Postmark account (for receiving emails)
-- API keys for Podcastfy's TTS service (OpenAI or other supported providers)
+- OpenAI API key (for generating podcast scripts)
+- ElevenLabs API key (for text-to-speech conversion)
 
 ## Installation
 
@@ -35,9 +35,12 @@ Convert incoming emails to podcasts automatically using Podcastfy and serve them
    RSS_DESCRIPTION=Podcasts generated from emails
    RSS_AUTHOR=Your Name
    RSS_EMAIL=your-email@example.com
+   OPENAI_API_KEY=your_openai_api_key
+   ELEVENLABS_API_KEY=your_elevenlabs_api_key
+   ELEVENLABS_VOICE_ID=your_voice_id
+   POSTMARK_SERVER_TOKEN=your_postmark_server_token
+   POSTMARK_FROM_EMAIL=noreply@yourdomain.com
    ```
-
-4. Configure Podcastfy with your API keys (see [Podcastfy documentation](https://github.com/souzatharsis/podcastfy))
 
 ## Usage
 
@@ -79,11 +82,10 @@ Edit `src/services/emailProcessor.js` to customize how emails are converted to t
 
 ### Podcast Settings
 
-Modify the Podcastfy configuration in `emailProcessor.js`:
-- `text_to_speech_model`: TTS model to use
-- `conversation_style`: Style of the podcast
-- `dialogue_structure`: Monologue or dialogue format
-- `output_format`: Audio format (mp3, wav, etc.)
+Modify the AI configuration in `emailProcessor.js`:
+- OpenAI model and prompt style for script generation
+- ElevenLabs voice settings for natural speech
+- Audio format and quality settings
 
 ### RSS Feed
 
@@ -107,9 +109,8 @@ npm run dev
 This service can be deployed to any Node.js hosting platform:
 
 1. Set environment variables on your hosting platform
-2. Ensure Python is available for Podcastfy
-3. Install dependencies: `npm install && pip install -r requirements.txt`
-4. Start the service: `npm start`
+2. Install dependencies: `npm install`
+3. Start the service: `npm start`
 
 ## Security
 
@@ -120,9 +121,10 @@ This service can be deployed to any Node.js hosting platform:
 
 ## Troubleshooting
 
-- **Podcast generation fails**: Check Podcastfy configuration and API keys
+- **Podcast generation fails**: Check OpenAI and ElevenLabs API keys
 - **RSS feed is empty**: Verify episodes are being saved to `storage/metadata.json`
 - **Webhook not receiving emails**: Check Postmark webhook configuration and token
+- **Audio generation errors**: Verify ElevenLabs voice ID and API limits
 
 ## License
 

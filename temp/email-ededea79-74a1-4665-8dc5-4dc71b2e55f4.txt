@@ -1,0 +1,198 @@
+Email from tcanfarotta@veratad.com
+Subject: Fwd: 240% fraud spike caught Fintechs sleeping
+Date: 6/8/2025
+
+Tom Canfarotta | VP of Product
+
+P 201 | 510 | 6000 | ext 120
+
+C 203 | 395 | 4438
+
+500 Frank W. Burr Blvd | Teaneck | NJ | 07666
+
+CONFIDENTIALITY NOTICE This e-mail message and any attachments are only for the use of the intended recipient and may contain information that is privileged, confidential or exempt from disclosure under applicable law. If you are not the intended recipient, any disclosure, distribution or other use of this e-mail message or attachments is prohibited. If you have received this e-mail message in error, please delete and notify the sender immediately. Thank you.
+
+---------- Forwarded message ----------
+From: "chen@nativerisk.com" <chen@nativerisk.com>
+Date: Saturday, June 7 2025 at 12:15 AM EDT
+Subject: 240% fraud spike caught Fintechs sleeping
+To: Tom <tcanfarotta@veratad.com>
+
+*****************************
+The Saturday Fraud Strategist
+*****************************
+
+A weekly newsletter for Fintech professionals who are curious about fraud
+-------------------------------------------------------------------------
+
+​ Read on my website ( https://click.convertkit-mail2.com/mvu0req2v8i5hq7lw5eimhrn6gqqqs3/wnh2hghqvvw8rvc7/aHR0cHM6Ly93d3cubmF0aXZlcmlzay5jb20vbmV3c2xldHRlci8yNDAtZnJhdWQtc3Bpa2UtY2F1Z2h0LWZpbnRlY2hzLXNsZWVwaW5n ) ​
+
+If we’ve spoken in the last 18 months and you asked me what I’m concerned about, you heard me mention two things:
+
+1st-party fraud and APP fraud.
+
+I was not surprised then to read in LexisNexis’ latest cybercrime report ( https://click.convertkit-mail2.com/mvu0req2v8i5hq7lw5eimhrn6gqqqs3/reh8hohmvv0nqeh2/aHR0cHM6Ly9yaXNrLmxleGlzbmV4aXMuY29tL2dsb2JhbC9lbi9pbnNpZ2h0cy1yZXNvdXJjZXMvcmVzZWFyY2gvY3liZXJjcmltZS1yZXBvcnQ= ) that 35.9% of reported fraud in 2024 was 1st-party.
+
+Horrified, but not surprised.
+
+This represented a 240%(!) increase from the 15% figure in 2023.
+
+Let that sink in for a minute.
+
+But here’s the twist: according to the report, the rise in 1st-party fraud was driven especially by financial services (and BNPL specifically).
+
+Are Fintechs prepared for this? Not at all. Most Fintechs don’t even think it’s relevant for them. They believe it’s a retailers’ problem.
+
+And guess what? Battle-tested 1st-party fraudsters and their tactics are now starting to migrate to an industry that doesn’t even bother to track it properly.
+
+So what and who is out there to help us protect ourselves from this threat?
+
+-------------
+*Consortiums*
+-------------
+
+Unsurprisingly, established players have been leveraging their networks and are sharing 1st-party fraud (and other) data between Fintechs and FIs.
+
+The most prominent examples are Socure, Sardine, and Unit21.
+
+It’s a relatively straightforward effort, and on its surface it presents a lot of promise.
+
+If someone committed 1st-party fraud in the past, they would be more likely to do it again, right?
+
+However, we need to remember that consortiums are essentially glorified block lists.
+
+And block lists, for all their worth, have two downsides:
+
+* They are binary: you’re either bad and on them, or good and not on them.
+* They amplify false positives: if I labeled you wrongly, it’s going to be very hard to get you out of the block loop.
+
+This gets very dicey with 1st-party fraud.
+
+The main reason is that 1st-party fraud encompasses many kinds of behaviors, some more “criminal” than others.
+
+This means it’s more likely to have false positives as a result. For example: if a customer multi-accounted to get a $50 coupon, would they also intentionally default on a $20k loan?
+
+Making such decisions requires a finer sensitivity than binary decisions, and that’s something that consortiums are not geared up to do well.
+
+Sure, you can always share the person’s entity features, but are Fintechs actually equipped to digest such complex datasets?
+
+Sharing the features might create more nuance, but is likely to require an AI model to implement properly. That’s a tall order.
+
+And we didn’t even mention the privacy concerns and regulatory considerations.
+
+Outside of the US, it’s becoming pretty hard to pull off. And in the long term, who’s to say regulatory considerations in the US itself might not make this approach limited as well.
+
+----------------------
+*Predictive Analytics*
+----------------------
+
+Then you have the new generation of fraud providers that focus on 1st-party fraud as the main problem they solve.
+
+Folks like Yofi, Pinch AI, and Halogen.
+
+They adapt the classical Machine Learning approach we’ve been using for catching 3rd-party fraud to solve this problem instead.
+
+The working hypothesis is that 1st-party fraud can be associated with specific behavioral patterns. For example: checking out the returns policy page before making a purchase.
+
+With this approach, one must be focused on a narrow use-case (e.g. return abuse, promo abuse, chargeback fraud, etc.) to help reduce the number of false positives.
+
+But it’s not that simple.
+
+If Fintechs are oblivious to the dangers of 1st-party fraud, they are likely not labeling it correctly. And without clean labels, how can we produce accurate models?
+
+Another issue is with taking an action on the user. There’s a difference between saying “you’ve done bad things before” and saying “we think you’ll be doing bad things in the future”.
+
+Managing the user experience and how you deal with false positives is more important but also more delicate when it comes to 1st-party fraud. And this feeds into the need to stay narrow in terms of use-cases.
+
+And yet, it seems like Fintechs and FIs are just not ready for this level of complexity.
+
+If I had to guess, I’d say we’re at least 3 years from the industry being able to leverage such solutions.
+
+---------------------
+*Threat Intelligence*
+---------------------
+
+Not unlike 3rd-party fraud, 1st-party fraud is a hot topic on the dark web, Telegram, and even WhatsApp groups.
+
+And unsurprisingly, some of the vendors I spoke to in recent months admitted they have been proactively enriching their data from these sources.
+
+But by now I would have expected to see a vendor offering such a threat intelligence solution as their main product.
+
+Whether it’s capturing devices and details of would-be fraudsters, or breaking down attack vectors that are shared in these groups. There’s just so much intelligence to be captured out there in the open.
+
+The fuzzy line between cyber and financial crime begs a solution and I can’t wait to see who would step into this space.
+
+----------------------------------
+*Are we fighting a losing battle?*
+----------------------------------
+
+Looking at all the different providers and their unique approaches for solving 1st-party fraud, I can’t help but ask myself:
+
+Can we even win this?
+
+Here’s the thing: 1st-party fraudsters are often opportunistic. It might be their first and last dip into abuse.
+
+Sudden financial distress can move ordinary people to “bend” their morals in times of need. At the macro level, this gets amplified in times of economic downturns, and then you see a “spike”.
+
+One of the vendors I’ve spoken to said: “About 80% of 1st-party fraud we see are first-timers, not repeat offenders”.
+
+If they are one-time offenders, would a consortium help catch them?
+
+If they are exploiting an opportunity, would they show intent I can predict with a model?
+
+Would they go the extra mile and join a dark web forum to get “professional” advice?
+
+For all of the innovation in the space, I still cannot shake the feeling that the balance is tipped against us. Hard.
+
+And this is before you even address the elephant in the room: is this a self-inflicted predicament?
+
+Not sure what I mean? I dare you to watch this 63-second TikTok ( https://click.convertkit-mail2.com/mvu0req2v8i5hq7lw5eimhrn6gqqqs3/08hwh9h2wwdqm7il/aHR0cHM6Ly93d3cudGlrdG9rLmNvbS9AY3NhcHVuY2gvdmlkZW8vNzM0ODUxODc3OTQxODExOTQ3MD9sYW5nPWVu ) without laughing once.
+
+-------------------------------------
+*How to get ahead of the competition*
+-------------------------------------
+
+Are you a Fintech experiencing a 1st-party fraud spike? Not sure how to move forward? A couple of thoughts:
+
+* *Start labeling and measuring the problem:* do that, and you’re already ahead of 99% of Fintechs out there.
+* *Layered defenses:* there’s no one solution that solves fraud, 1st-party or 3rd-party. The answer always lies in layering your defenses to cover for gaps.
+
+And just so we don’t end up this week’s issue on a fatalistic note, let me offer this final thought:
+
+What if Fintechs (and FIs) are better equipped than any other industry to detect opportunistic fraud?
+
+Isn’t that why we have credit scores?
+
+​
+What do you think? How big a pain 1st-party fraud is for your business, and do you think you’re truly on top of it? Hit the reply button, I would love to hear more takes.
+
+​
+
+In the meantime, that’s all for this week.
+
+​
+
+See you next Saturday.
+
+P.S. If you feel like you're running out of time and need some expert advice with getting your fraud strategy on track, here's how I can help you:
+
+*Free Discovery Call* - Unsure where to start or have a specific need? Schedule a 15-min call with me to assess if and how I can be of value.
+​ Schedule a Discovery Call Now » ( https://click.convertkit-mail2.com/mvu0req2v8i5hq7lw5eimhrn6gqqqs3/8ghqhohopplkggtk/aHR0cHM6Ly9jYWxlbmRseS5jb20vY2hlbi1uci9mcmVlLWRpc2NvdmVyeS1jYWxs ) ​
+
+*Consultation Call* - Need expert advice on fraud? Meet with me for a 1-hour consultation call to gain the clarity you need. Guaranteed. ​
+​ Book a Consultation Call Now » ( https://click.convertkit-mail2.com/mvu0req2v8i5hq7lw5eimhrn6gqqqs3/vqh3hrho33p8npcg/aHR0cHM6Ly93d3cubmF0aXZlcmlzay5jb20vY29uc3VsdGF0aW9uLWNhbGw= ) ​
+
+*Fraud Strategy Action Plan* - Is your Fintech struggling with balancing fraud prevention and growth? Are you thinking about adding new fraud vendors or even offering your own fraud product? Sign up for this 2-week program to get your tailored, high-ROI fraud strategy action plan so that you know exactly what to do next.
+​ Sign-up Now » ( https://click.convertkit-mail2.com/mvu0req2v8i5hq7lw5eimhrn6gqqqs3/l2hehmhlvv3wols6/aHR0cHM6Ly93d3cubmF0aXZlcmlzay5jb20vZnJhdWQtc3RyYXRlZ3ktYWN0aW9uLXBsYW4= ) ​
+
+​
+
+Thanks for reading! If you loved it, tell your friends to subscribe.
+
+If you didn’t enjoy the email you can unsubscribe here ( https://unsubscribe.convertkit-mail2.com/mvu0req2v8i5hq7lw5eimhrn6gqqqs3 ).
+
+To change your email or preferences manage your profile ( https://preferences.convertkit-mail2.com/mvu0req2v8i5hq7lw5eimhrn6gqqqs3 ).
+
+www. nativerisk. com ( http://www.nativerisk.com/ )
+
+Built with Kit ( https://click.convertkit-mail2.com/mvu0req2v8i5hq7lw5eimhrn6gqqqs3/m2h7h5h3008womam/aHR0cHM6Ly9raXQuY29tL2ZlYXR1cmVzL2VtYWlsLW1hcmtldGluZz91dG1fY2FtcGFpZ249cG93ZXJlZGJ5JnV0bV9jb250ZW50PWVtYWlsJnV0bV9tZWRpdW09cmVmZXJyYWwmdXRtX3NvdXJjZT1keW5hbWlj )

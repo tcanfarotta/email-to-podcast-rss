@@ -8,15 +8,22 @@
     "start": "node src/index.js",
     "dev": "node --watch src/index.js"
   },
-  "keywords": ["podcast", "email", "rss", "postmark", "webhook"],
+  "keywords": [
+    "podcast",
+    "email",
+    "rss",
+    "postmark",
+    "webhook"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
+    "axios": "^1.9.0",
     "dotenv": "^16.3.1",
-    "rss": "^1.2.2",
-    "uuid": "^9.0.1",
+    "express": "^4.18.2",
     "multer": "^1.4.5-lts.1",
-    "axios": "^1.6.2"
+    "openai": "^5.1.1",
+    "rss": "^1.2.2",
+    "uuid": "^9.0.1"
   }
 }
