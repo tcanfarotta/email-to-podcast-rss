@@ -9,19 +9,7 @@
   },
   "rewrites": [
     {
-      "source": "/webhook/postmark",
-      "destination": "/api"
-    },
-    {
-      "source": "/rss/feed.xml",
-      "destination": "/api"
-    },
-    {
-      "source": "/rss/feed/:feedId",
-      "destination": "/api"
-    },
-    {
-      "source": "/podcasts/:file",
+      "source": "/(.*)",
       "destination": "/api"
     }
   ]

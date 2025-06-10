@@ -13,29 +13,32 @@ export const config = {
 
 export default async function handler(req, res) {
   const { url, method } = req;
-  console.log('API Request:', method, url);
+  const path = req.url || url || '';
+  console.log('API Request:', method, path);
+  console.log('Full request URL info:', { url: req.url, originalUrl: req.originalUrl, path: req.path });
 
-  // Route: POST /api/webhook/postmark
-  if (url.startsWith('/api/webhook/postmark') && method === 'POST') {
+  // Route: POST /webhook/postmark
+  if (path.includes('/webhook/postmark') && method === 'POST') {
     return handleWebhook(req, res);
   }
 
-  // Route: GET /api/rss/feed.xml or /api/rss/feed
-  if (url.match(/\/api\/rss\/feed(\.xml)?$/) && method === 'GET') {
+  // Route: GET /rss/feed.xml or /rss/feed
+  if (path.match(/\/rss\/feed(\.xml)?$/) && method === 'GET') {
     return handleRssFeed(req, res);
   }
 
-  // Route: GET /api/rss/feed/[feedId]
-  if (url.match(/\/api\/rss\/feed\/[\w-]+$/) && method === 'GET') {
+  // Route: GET /rss/feed/[feedId]
+  if (path.match(/\/rss\/feed\/[\w-]+$/) && method === 'GET') {
     return handlePersonalFeed(req, res);
   }
 
-  // Route: GET /api/podcasts/[file]
-  if (url.match(/\/api\/podcasts\/[\w-]+\.mp3$/) && method === 'GET') {
+  // Route: GET /podcasts/[file]
+  if (path.match(/\/podcasts\/[\w-]+\.mp3$/) && method === 'GET') {
     return handlePodcastFile(req, res);
   }
 
-  return res.status(404).json({ error: 'Not found' });
+  console.log('No route matched for:', method, path);
+  return res.status(404).json({ error: 'Not found', path, method });
 }
 
 async function handleWebhook(req, res) {
