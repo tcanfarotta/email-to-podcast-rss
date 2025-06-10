@@ -85,6 +85,7 @@ export class R2StorageAdapter {
   }
 
   async getMetadata(episodeId) {
+    console.log('R2: Getting metadata for episode:', episodeId);
     try {
       const params = {
         Bucket: this.bucket,
@@ -93,8 +94,15 @@ export class R2StorageAdapter {
 
       const response = await this.client.send(new GetObjectCommand(params));
       const body = await response.Body.transformToString();
-      return JSON.parse(body);
+      const metadata = JSON.parse(body);
+      console.log('R2: Retrieved metadata:', {
+        id: episodeId,
+        hasEmail: !!metadata.email,
+        emailFrom: metadata.email?.from
+      });
+      return metadata;
     } catch (error) {
+      console.error('R2: Error getting metadata:', error.name);
       if (error.name === 'NoSuchKey') {
         return null;
       }
@@ -138,7 +146,8 @@ export class R2StorageAdapter {
             date: metadata.date,
             audioUrl: metadata.audioUrl,
             size: metadata.size,
-            duration: metadata.duration
+            duration: metadata.duration,
+            email: metadata.email  // Include email metadata for filtering
           });
         }
       }
