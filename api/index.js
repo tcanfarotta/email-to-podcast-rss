@@ -81,6 +81,9 @@ async function handleRssFeed(req, res) {
     const storage = getStorageAdapter();
     const episodes = await storage.listEpisodes();
     console.log('Found episodes:', episodes.length);
+    if (episodes.length > 0) {
+      console.log('First episode:', JSON.stringify(episodes[0], null, 2));
+    }
 
     const publicUrl = process.env.PUBLIC_URL || `https://${req.headers.host}`;
     const feed = createRssFeed(publicUrl, episodes);
@@ -98,10 +101,12 @@ async function handleRssFeed(req, res) {
 async function handlePersonalFeed(req, res) {
   console.log('=== PERSONAL RSS FEED REQUEST ===');
   const feedId = req.url.split('/').pop();
+  console.log('Feed ID requested:', feedId);
   
   try {
     const storage = getStorageAdapter();
     const allEpisodes = await storage.listEpisodes();
+    console.log('Total episodes found:', allEpisodes.length);
     
     const feedEpisodes = allEpisodes.filter(episode => {
       if (episode.email && episode.email.from) {
@@ -109,10 +114,19 @@ async function handlePersonalFeed(req, res) {
           .update(episode.email.from.toLowerCase())
           .digest('hex')
           .substring(0, 16);
+        console.log('Checking episode:', {
+          episodeId: episode.id,
+          from: episode.email.from,
+          hash: emailHash,
+          matches: emailHash === feedId
+        });
         return emailHash === feedId;
       }
+      console.log('Episode missing email data:', episode.id);
       return false;
     });
+    
+    console.log('Filtered episodes for feed:', feedEpisodes.length);
 
     const publicUrl = process.env.PUBLIC_URL || `https://${req.headers.host}`;
     const feed = createRssFeed(publicUrl, feedEpisodes);
