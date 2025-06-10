@@ -3,22 +3,26 @@
   "outputDirectory": ".",
   "framework": null,
   "functions": {
-    "api/**/*.js": {
+    "api/index.js": {
       "maxDuration": 60
     }
   },
   "rewrites": [
     {
       "source": "/webhook/postmark",
-      "destination": "/api/webhook/postmark"
+      "destination": "/api"
     },
     {
       "source": "/rss/feed.xml",
-      "destination": "/api/rss/feed"
+      "destination": "/api"
+    },
+    {
+      "source": "/rss/feed/:feedId",
+      "destination": "/api"
     },
     {
       "source": "/podcasts/:file",
-      "destination": "/api/podcasts/[file]"
+      "destination": "/api"
     }
   ]
 }
