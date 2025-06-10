@@ -1,10 +1,16 @@
 import axios from 'axios';
 
 export async function sendEmailReply(toEmail, fromEmail, subject, htmlContent, textContent) {
+  console.log('=== SENDING EMAIL REPLY ===');
+  console.log('To:', toEmail);
+  console.log('From:', fromEmail);
+  console.log('Subject:', subject);
+  console.log('Has server token:', !!process.env.POSTMARK_SERVER_TOKEN);
+  
   try {
     // Check if we have Postmark server token
     if (!process.env.POSTMARK_SERVER_TOKEN) {
-      console.log('No POSTMARK_SERVER_TOKEN configured, skipping email reply');
+      console.log('WARNING: No POSTMARK_SERVER_TOKEN configured, skipping email reply');
       return;
     }
     
@@ -32,7 +38,10 @@ export async function sendEmailReply(toEmail, fromEmail, subject, htmlContent, t
     return response.data;
     
   } catch (error) {
-    console.error('Failed to send email reply:', error.response?.data || error.message);
+    console.error('=== EMAIL SEND ERROR ===');
+    console.error('Error message:', error.message);
+    console.error('Error response:', error.response?.data);
+    console.error('Status code:', error.response?.status);
     throw error;
   }
 }

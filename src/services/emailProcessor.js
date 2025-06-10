@@ -7,13 +7,23 @@ import axios from 'axios';
 let openai;
 
 export async function processEmail(email) {
+  console.log('=== EMAIL PROCESSOR START ===');
+  console.log('Email data:', {
+    from: email.FromFull?.Email || email.From,
+    to: email.To,
+    subject: email.Subject,
+    date: email.Date
+  });
+  
   try {
-    console.log('Processing email:', email.subject);
+    console.log('Processing email:', email.Subject || email.subject);
     
     // Generate unique ID for this episode
     const episodeId = uuidv4();
+    console.log('Generated episode ID:', episodeId);
     
     // Prepare content for OpenAI
+    console.log('Preparing email content...');
     const content = await prepareEmailContent(email);
     
     console.log('\n========== CONTENT FOR OPENAI ===========');
@@ -22,7 +32,7 @@ export async function processEmail(email) {
     
     // Generate podcast dialogue using OpenAI
     console.log('\n========== CALLING OPENAI ==========');
-    const aiResponse = await generatePodcastDialogue(content, email.subject);
+    const aiResponse = await generatePodcastDialogue(content, email.Subject || email.subject);
     
     // Parse title and script from response
     const titleMatch = aiResponse.match(/TITLE:\s*(.+?)(?:\n|$)/);
@@ -40,7 +50,9 @@ export async function processEmail(email) {
     
     // Generate audio using ElevenLabs
     console.log('Converting to speech with ElevenLabs...');
+    console.log('Script length:', podcastScript.length);
     const audioBuffer = await generateAudio(podcastScript);
+    console.log('Audio buffer size:', audioBuffer.length, 'bytes');
     
     // Create episode metadata
     // Clean content for XML - remove binary data and control characters
@@ -50,37 +62,49 @@ export async function processEmail(email) {
       .trim();
     
     // Save audio to storage
+    console.log('Getting storage adapter...');
     const storage = getStorageAdapter();
+    console.log('Storage adapter type:', storage.constructor.name);
+    
     const audioFilename = `podcast-${episodeId}.mp3`;
+    console.log('Saving audio file:', audioFilename);
     const { url: audioUrl, size } = await storage.saveAudio(audioFilename, audioBuffer);
+    console.log('Audio saved:', { url: audioUrl, size });
+    
+    const fromEmail = email.FromFull?.Email || email.From || 'unknown';
+    const emailDate = email.Date || email.date || new Date();
     
     const episode = {
       id: episodeId,
       title: episodeTitle,
-      description: `Email from ${email.from} received on ${new Date(email.date).toLocaleDateString()}`,
+      description: `Email from ${fromEmail} received on ${new Date(emailDate).toLocaleDateString()}`,
       content: cleanContent.substring(0, 500) + '...',
       audioFile: audioFilename,
       audioUrl,
       size,
-      date: new Date(email.date),
+      date: new Date(emailDate),
       duration: 300, // Placeholder - you can calculate actual duration later
-      author: email.from,
+      author: fromEmail,
       email: {
-        from: email.from,
-        to: email.to,
-        messageId: email.messageId
+        from: fromEmail,
+        to: email.To || email.to,
+        messageId: email.MessageID || email.messageId
       }
     };
     
     // Store episode metadata
+    console.log('Saving episode metadata...');
     await storage.saveMetadata(episodeId, episode);
+    console.log('Episode metadata saved');
     
     console.log(`Podcast generated successfully: ${episode.audioFile}`);
     
     // Send email reply with RSS feed link
     try {
+      console.log('Sending email reply...');
       const { sendEmailReply } = await import('../utils/emailSender.js');
-      const feedId = await getFeedIdForEmail(email.from);
+      const feedId = await getFeedIdForEmail(fromEmail);
+      console.log('Feed ID for', fromEmail, ':', feedId);
       const rssUrl = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/rss/feed/${feedId}`;
       
       const htmlContent = `
@@ -123,38 +147,48 @@ Subscribe to your personal podcast feed in any podcast app using the RSS link ab
 Powered by Email to Podcast
       `;
       
+      console.log('Sending reply to:', fromEmail);
       await sendEmailReply(
-        email.from,
+        fromEmail,
         process.env.POSTMARK_FROM_EMAIL || 'noreply@yourdomain.com',
-        `Re: ${email.subject} - Podcast Ready!`,
+        `Re: ${email.Subject || email.subject} - Podcast Ready!`,
         htmlContent,
         textContent
       );
       
-      console.log(`Email reply sent to ${email.from} with RSS feed link`);
+      console.log(`Email reply sent to ${fromEmail} with RSS feed link`);
     } catch (error) {
-      console.error('Failed to send email reply:', error);
+      console.error('Failed to send email reply:', error.message);
+      console.error('Email error stack:', error.stack);
       // Don't fail the whole process if email sending fails
     }
     
     return episode;
     
   } catch (error) {
-    console.error('Error processing email:', error);
+    console.error('=== EMAIL PROCESSOR ERROR ===');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     throw error;
   }
 }
 
 async function prepareEmailContent(email) {
+  console.log('=== PREPARING EMAIL CONTENT ===');
   let content = '';
   let rawContent = '';
   
   // Get the raw content first
-  if (email.htmlBody) {
+  const hasHtml = !!(email.HtmlBody || email.htmlBody);
+  const hasText = !!(email.TextBody || email.textBody);
+  console.log('Content types available:', { hasHtml, hasText });
+  
+  if (email.HtmlBody || email.htmlBody) {
     // Prefer HTML for better link extraction
-    rawContent = email.htmlBody;
+    rawContent = email.HtmlBody || email.htmlBody;
+    console.log('Using HTML body, length:', rawContent.length);
     // Convert button/link text to help identify them
-    content = email.htmlBody
+    content = rawContent
       // Preserve link context by adding text before removing tags
       .replace(/<a[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi, ' $2 [$1] ')
       .replace(/<button[^>]*>(.*?)<\/button>/gi, ' $1 ')
@@ -166,9 +200,12 @@ async function prepareEmailContent(email) {
       .replace(/&gt;/g, '>')
       .replace(/\s+/g, ' ')
       .trim();
-  } else if (email.textBody) {
-    rawContent = email.textBody;
-    content = email.textBody;
+  } else if (email.TextBody || email.textBody) {
+    rawContent = email.TextBody || email.textBody;
+    content = rawContent;
+    console.log('Using text body, length:', rawContent.length);
+  } else {
+    console.log('WARNING: No email body found!');
   }
   
   // Look for "Continue Reading" or "Read More" links specifically

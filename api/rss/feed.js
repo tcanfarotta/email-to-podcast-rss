@@ -2,13 +2,20 @@ import RSS from 'rss';
 import { getStorageAdapter } from '../../src/services/storage/adapter.js';
 
 export default async function handler(req, res) {
+  console.log('=== RSS FEED REQUEST ===');
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+  
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
+    console.log('Getting storage adapter...');
     const storage = getStorageAdapter();
+    console.log('Fetching episodes...');
     const episodes = await storage.listEpisodes();
+    console.log('Found episodes:', episodes.length);
     
     const publicUrl = process.env.PUBLIC_URL || `https://${req.headers.host}`;
     
@@ -55,10 +62,14 @@ export default async function handler(req, res) {
       });
     }
 
+    const xml = feed.xml();
+    console.log('RSS feed generated, size:', xml.length);
     res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
-    res.status(200).send(feed.xml());
+    res.status(200).send(xml);
   } catch (error) {
-    console.error('RSS feed generation error:', error);
+    console.error('=== RSS FEED ERROR ===');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       error: 'Failed to generate RSS feed',
       details: error.message 

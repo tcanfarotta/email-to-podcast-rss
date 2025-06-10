@@ -17,12 +17,16 @@ export class R2StorageAdapter {
   }
 
   async saveAudio(filename, buffer, metadata = {}) {
+    console.log('R2: Saving audio file:', filename, 'Size:', buffer.length);
     try {
+      const key = `podcasts/${filename}`;
+      console.log('R2: Uploading to bucket:', this.bucket, 'Key:', key);
+      
       const upload = new Upload({
         client: this.client,
         params: {
           Bucket: this.bucket,
-          Key: `podcasts/${filename}`,
+          Key: key,
           Body: buffer,
           ContentType: 'audio/mpeg',
           Metadata: {
@@ -33,6 +37,7 @@ export class R2StorageAdapter {
       });
 
       await upload.done();
+      console.log('R2: Upload complete');
       
       return {
         filename,
@@ -41,20 +46,30 @@ export class R2StorageAdapter {
       };
     } catch (error) {
       console.error('R2 upload error:', error);
+      console.error('R2 error details:', {
+        name: error.name,
+        code: error.Code,
+        statusCode: error.$metadata?.httpStatusCode,
+        requestId: error.$metadata?.requestId
+      });
       throw new Error(`Failed to upload to R2: ${error.message}`);
     }
   }
 
   async saveMetadata(episodeId, metadata) {
+    console.log('R2: Saving metadata for episode:', episodeId);
     try {
+      const key = `metadata/${episodeId}.json`;
       const params = {
         Bucket: this.bucket,
-        Key: `metadata/${episodeId}.json`,
+        Key: key,
         Body: JSON.stringify(metadata, null, 2),
         ContentType: 'application/json'
       };
-
+      
+      console.log('R2: Saving metadata to:', key);
       await this.client.send(new PutObjectCommand(params));
+      console.log('R2: Metadata saved successfully');
     } catch (error) {
       console.error('R2 metadata save error:', error);
       throw new Error(`Failed to save metadata: ${error.message}`);
@@ -80,6 +95,7 @@ export class R2StorageAdapter {
   }
 
   async listEpisodes() {
+    console.log('R2: Listing episodes from bucket:', this.bucket);
     try {
       const params = {
         Bucket: this.bucket,
@@ -88,6 +104,7 @@ export class R2StorageAdapter {
       };
 
       const response = await this.client.send(new ListObjectsV2Command(params));
+      console.log('R2: Found', response.Contents?.length || 0, 'metadata files');
       
       if (!response.Contents || response.Contents.length === 0) {
         return [];
