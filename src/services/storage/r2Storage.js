@@ -39,9 +39,11 @@ export class R2StorageAdapter {
       await upload.done();
       console.log('R2: Upload complete');
       
+      // Use PUBLIC_URL for the podcast URL since R2 bucket is private
+      const publicUrl = process.env.PUBLIC_URL || this.publicUrl;
       return {
         filename,
-        url: `${this.publicUrl}/podcasts/${filename}`,
+        url: `${publicUrl}/podcasts/${filename}`,
         size: buffer.length
       };
     } catch (error) {
@@ -114,9 +116,15 @@ export class R2StorageAdapter {
       
       for (const item of response.Contents) {
         const episodeId = item.Key.replace('metadata/', '').replace('.json', '');
+        console.log('R2: Processing metadata for episode:', episodeId);
         const metadata = await this.getMetadata(episodeId);
         
         if (metadata) {
+          console.log('R2: Episode metadata:', {
+            id: episodeId,
+            title: metadata.title,
+            audioUrl: metadata.audioUrl
+          });
           episodes.push({
             id: episodeId,
             title: metadata.title,
@@ -137,17 +145,20 @@ export class R2StorageAdapter {
   }
 
   async getAudioStream(filename) {
+    console.log('R2: Getting audio stream for:', filename);
     try {
       const params = {
         Bucket: this.bucket,
         Key: `podcasts/${filename}`
       };
+      console.log('R2: Fetching from bucket:', this.bucket, 'Key:', params.Key);
 
       // Get object metadata first
       const headResponse = await this.client.send(new HeadObjectCommand(params));
       
       // Get the actual object
       const response = await this.client.send(new GetObjectCommand(params));
+      console.log('R2: Got audio stream, content length:', headResponse.ContentLength);
       
       return {
         stream: response.Body,
@@ -155,6 +166,12 @@ export class R2StorageAdapter {
         contentLength: headResponse.ContentLength
       };
     } catch (error) {
+      console.error('R2: Error getting audio stream:', error);
+      console.error('R2: Error details:', {
+        name: error.name,
+        code: error.Code,
+        statusCode: error.$metadata?.httpStatusCode
+      });
       if (error.name === 'NoSuchKey') {
         throw new Error('File not found');
       }

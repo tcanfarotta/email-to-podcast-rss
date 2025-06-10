@@ -45,8 +45,16 @@ export default async function handler(req, res) {
 
     // Sort episodes by date (newest first)
     episodes.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+    
+    console.log('Adding episodes to feed:');
     for (const episode of episodes) {
+      console.log('Adding episode:', {
+        id: episode.id,
+        title: episode.title,
+        audioUrl: episode.audioUrl,
+        date: episode.date
+      });
+      
       feed.item({
         title: episode.title,
         description: episode.description,
