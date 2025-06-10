@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/webhook/postmark",
+      "destination": "/api/webhook/postmark"
+    },
+    {
+      "source": "/rss/feed.xml",
+      "destination": "/api/rss/feed"
+    },
+    {
+      "source": "/podcasts/:file",
+      "destination": "/api/podcasts/[file]"
+    }
+  ]
+}

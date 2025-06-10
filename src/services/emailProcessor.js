@@ -1,14 +1,8 @@
-import { writeFile, mkdir, unlink } from 'fs/promises';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
-import { addPodcastEpisode, getFeedIdForEmail } from './podcastStorage.js';
+import { getStorageAdapter } from './storage/adapter.js';
+import { getFeedIdForEmail } from './podcastStorage.js';
 import OpenAI from 'openai';
 import axios from 'axios';
-import fs from 'fs';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 let openai;
 
@@ -46,8 +40,7 @@ export async function processEmail(email) {
     
     // Generate audio using ElevenLabs
     console.log('Converting to speech with ElevenLabs...');
-    const outputFile = join(dirname(dirname(__dirname)), 'storage', 'podcasts', `podcast-${episodeId}.mp3`);
-    await generateAudio(podcastScript, outputFile);
+    const audioBuffer = await generateAudio(podcastScript);
     
     // Create episode metadata
     // Clean content for XML - remove binary data and control characters
@@ -56,13 +49,19 @@ export async function processEmail(email) {
       .replace(/[^\x20-\x7E\s]/g, '') // Keep only printable ASCII and whitespace
       .trim();
     
+    // Save audio to storage
+    const storage = getStorageAdapter();
+    const audioFilename = `podcast-${episodeId}.mp3`;
+    const { url: audioUrl, size } = await storage.saveAudio(audioFilename, audioBuffer);
+    
     const episode = {
       id: episodeId,
       title: episodeTitle,
       description: `Email from ${email.from} received on ${new Date(email.date).toLocaleDateString()}`,
       content: cleanContent.substring(0, 500) + '...',
-      audioFile: `podcast-${episodeId}.mp3`,
-      audioUrl: `${process.env.PUBLIC_URL || 'http://localhost:3000'}/podcasts/podcast-${episodeId}.mp3`,
+      audioFile: audioFilename,
+      audioUrl,
+      size,
       date: new Date(email.date),
       duration: 300, // Placeholder - you can calculate actual duration later
       author: email.from,
@@ -74,7 +73,7 @@ export async function processEmail(email) {
     };
     
     // Store episode metadata
-    await addPodcastEpisode(episode);
+    await storage.saveMetadata(episodeId, episode);
     
     console.log(`Podcast generated successfully: ${episode.audioFile}`);
     
@@ -195,41 +194,26 @@ async function prepareEmailContent(email) {
   const linkedinMatches = rawContent.match(linkedinRegex) || [];
   contentLinks.push(...linkedinMatches);
   
-  // If no "read more" links found, fall back to all links
-  if (contentLinks.length === 0) {
-    const linkRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
-    const allLinks = rawContent.match(linkRegex) || [];
-    
-    // Filter for article/content links (avoid unsubscribe, tracking, social media links)
-    contentLinks = allLinks.filter(link => {
-      const lowerLink = link.toLowerCase();
-      return !lowerLink.includes('unsubscribe') &&
-             !lowerLink.includes('twitter.com') &&
-             !lowerLink.includes('facebook.com') &&
-             !lowerLink.includes('linkedin.com') &&
-             !lowerLink.includes('instagram.com') &&
-             !lowerLink.includes('mailto:') &&
-             !lowerLink.includes('preferences') &&
-             !lowerLink.includes('email-settings') &&
-             !lowerLink.includes('tracking') &&
-             !lowerLink.includes('click.convertkit') &&
-             !lowerLink.includes('list-manage.com') &&
-             !lowerLink.includes('campaign-archive');
-    });
-  }
-  
-  // Remove duplicates and filter out image/tracking links
+  // Remove duplicates and filter out ALL image/media/tracking links FIRST
   contentLinks = [...new Set(contentLinks)].filter(link => {
     const lowerLink = link.toLowerCase();
-    // Skip image files and tracking pixels
-    return !lowerLink.endsWith('.png') &&
-           !lowerLink.endsWith('.jpg') &&
-           !lowerLink.endsWith('.jpeg') &&
-           !lowerLink.endsWith('.gif') &&
-           !lowerLink.endsWith('.webp') &&
+    // Skip ALL image files, media files, and tracking links
+    return !lowerLink.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|bmp|tiff|pdf|mp3|mp4|avi|mov|wmv|flv|swf)$/i) &&
+           !lowerLink.includes('/images/') &&
+           !lowerLink.includes('/media/') &&
+           !lowerLink.includes('/assets/') &&
            !lowerLink.includes('/track/') &&
+           !lowerLink.includes('/click/') &&
+           !lowerLink.includes('/pixel') &&
            !lowerLink.includes('superhuman.com') &&
-           !lowerLink.includes('pixel');
+           !lowerLink.includes('unsubscribe') &&
+           !lowerLink.includes('email-settings') &&
+           !lowerLink.includes('preferences') &&
+           !lowerLink.includes('mailto:') &&
+           !lowerLink.includes('tracking') &&
+           !lowerLink.includes('click.convertkit') &&
+           !lowerLink.includes('list-manage.com') &&
+           !lowerLink.includes('campaign-archive');
   });
   
   // If we found potential article links, fetch the content
@@ -356,12 +340,18 @@ async function generatePodcastDialogue(content, subject) {
   throw new Error(`Failed to generate podcast dialogue after ${maxRetries} attempts: ${lastError.message}`);
 }
 
-async function generateAudio(text, outputFile) {
+async function generateAudio(text) {
   const maxRetries = 3;
   let lastError;
   
   console.log(`\n--- ElevenLabs Request ---`);
   console.log(`Text length: ${text.length} characters`);
+  
+  // Check if text is too long for free tier
+  if (text.length > 5000) {
+    console.warn(`WARNING: Text is ${text.length} characters, which may exceed ElevenLabs limits`);
+    console.warn('Consider shortening the podcast script or upgrading your ElevenLabs plan');
+  }
   
   // For now, use standard text-to-speech
   // The dialogue format will still work - ElevenLabs will read the emotions and speaker names
@@ -386,27 +376,39 @@ async function generateAudio(text, outputFile) {
             'Content-Type': 'application/json',
             'xi-api-key': process.env.ELEVENLABS_API_KEY
           },
-          responseType: 'stream',
+          responseType: 'arraybuffer',
           timeout: 300000 // 5 minute timeout
         }
       );
 
-      // Ensure directory exists
-      await mkdir(dirname(outputFile), { recursive: true });
-
-      // Save the audio file
-      const writer = fs.createWriteStream(outputFile);
-      response.data.pipe(writer);
-
-      return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
+      // Convert response data to Buffer
+      return Buffer.from(response.data);
     } catch (error) {
       lastError = error;
       console.error(`ElevenLabs API error (attempt ${attempt}/${maxRetries}):`, error.response?.data || error.message);
       if (error.response?.data) {
         console.error('Error details:', JSON.stringify(error.response.data, null, 2));
+      }
+      if (error.response?.status) {
+        console.error('Status code:', error.response.status);
+        console.error('Status text:', error.response.statusText);
+      }
+      
+      // Check for authentication error
+      if (error.response?.status === 401) {
+        console.error('\n=== ELEVENLABS AUTHENTICATION ERROR ===');
+        console.error('Your ElevenLabs API key is invalid or expired.');
+        console.error('Please check your ELEVENLABS_API_KEY in the .env file');
+        console.error('Current key starts with:', process.env.ELEVENLABS_API_KEY?.substring(0, 10) + '...');
+        throw new Error('ElevenLabs API authentication failed. Please check your API key.');
+      }
+      
+      // Check for quota exceeded error
+      if (error.response?.status === 422 && error.response?.data?.detail?.status === 'quota_exceeded') {
+        console.error('\n=== ELEVENLABS QUOTA EXCEEDED ===');
+        console.error('You have run out of ElevenLabs credits for this month.');
+        console.error('Consider upgrading your plan or waiting for the monthly reset.');
+        throw new Error('ElevenLabs quota exceeded. No credits remaining.');
       }
       
       // Check if it's a rate limit or overload error

@@ -80,21 +80,11 @@ async function saveFeedMappings(mappings) {
 }
 
 export async function getFeedIdForEmail(email) {
-  const mappings = await loadFeedMappings();
-  
-  // If email already has a feed ID, return it
-  if (mappings[email]) {
-    return mappings[email];
-  }
-  
-  // Generate new feed ID
-  const feedId = uuidv4();
-  mappings[email] = feedId;
-  
-  // Save updated mappings
-  await saveFeedMappings(mappings);
-  
-  return feedId;
+  // For Vercel deployment, we'll use a deterministic hash instead of storing mappings
+  // This avoids the need for persistent file storage
+  const crypto = await import('crypto');
+  const hash = crypto.createHash('sha256').update(email.toLowerCase()).digest('hex');
+  return hash.substring(0, 16); // Use first 16 chars as feed ID
 }
 
 export async function getEmailByFeedId(feedId) {
