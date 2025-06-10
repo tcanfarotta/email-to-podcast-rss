@@ -1,4 +1,4 @@
-import { processEmail } from '../../src/services/emailProcessor.js';
+import { processEmail } from '../src/services/emailProcessor.js';
 
 export const config = {
   api: {

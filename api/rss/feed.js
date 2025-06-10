@@ -1,5 +1,5 @@
 import RSS from 'rss';
-import { getStorageAdapter } from '../../src/services/storage/adapter.js';
+import { getStorageAdapter } from '../src/services/storage/adapter.js';
 
 export default async function handler(req, res) {
   console.log('=== RSS FEED REQUEST ===');

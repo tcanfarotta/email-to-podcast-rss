@@ -1,4 +1,4 @@
-import { getStorageAdapter } from '../../src/services/storage/adapter.js';
+import { getStorageAdapter } from '../src/services/storage/adapter.js';
 
 export default async function handler(req, res) {
   console.log('=== PODCAST FILE REQUEST ===');
