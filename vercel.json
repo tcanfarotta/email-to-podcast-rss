@@ -2,6 +2,7 @@
   "buildCommand": "echo 'No build required'",
   "outputDirectory": ".",
   "framework": null,
+  "cleanUrls": true,
   "functions": {
     "api/index.js": {
       "maxDuration": 60

@@ -1,0 +1,25 @@
+# Ignore local storage
+/storage/
+/temp/
+
+# Ignore test files
+test-*.js
+
+# Ignore local env files
+.env
+.env.local
+
+# Ignore git files
+.git/
+.gitignore
+
+# Ignore docs
+*.md
+
+# Node modules (Vercel installs these)
+node_modules/
+
+# Ignore any leftover API files
+api/podcasts/
+api/rss/
+api/webhook/
