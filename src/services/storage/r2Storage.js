@@ -41,6 +41,12 @@ export class R2StorageAdapter {
       
       // Use PUBLIC_URL for the podcast URL since R2 bucket is private
       const publicUrl = process.env.PUBLIC_URL || this.publicUrl;
+      console.log('R2: URL generation:', {
+        PUBLIC_URL: process.env.PUBLIC_URL,
+        thisPublicUrl: this.publicUrl,
+        finalUrl: publicUrl,
+        generatedUrl: `${publicUrl}/podcasts/${filename}`
+      });
       return {
         filename,
         url: `${publicUrl}/podcasts/${filename}`,
